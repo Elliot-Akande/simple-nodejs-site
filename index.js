@@ -1,7 +1,7 @@
-const http = require("node:http");
+const express = require("express");
 const fs = require("node:fs");
+const app = express();
 
-const hostname = "127.0.0.1";
 const port = 8080;
 
 const routes = {
@@ -10,13 +10,34 @@ const routes = {
   "/contact-me": "contact-me.html",
 };
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/html");
-  const page = req.url in routes ? routes[req.url] : "404.html";
-  fs.readFile(page, "utf8", (err, data) => res.end(data));
+app.get("/", (req, res) => {
+  fs.readFile("index.html", "utf8", (err, data) => {
+    if (err) throw new Error(err);
+    res.send(data);
+  });
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}`);
+app.get("/about", (req, res) => {
+  fs.readFile("about.html", "utf8", (err, data) => {
+    if (err) throw new Error(err);
+    res.send(data);
+  });
+});
+
+app.get("/contact-me", (req, res) => {
+  fs.readFile("contact-me.html", "utf8", (err, data) => {
+    if (err) throw new Error(err);
+    res.send(data);
+  });
+});
+
+app.get("*", function (req, res) {
+  fs.readFile("404.html", "utf8", (err, data) => {
+    if (err) throw new Error(err);
+    res.status(404).send(data);
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
